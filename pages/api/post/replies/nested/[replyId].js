@@ -16,5 +16,5 @@ export default async function handler(req, res){
     res.status(200).json(replies);
     } else {
         // If no forum found, send a not found response
-        res.status(404).json({ message: 'No nested replies for this reply!' });
+        res.status(200).json([]);
     }}

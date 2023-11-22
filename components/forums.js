@@ -28,21 +28,32 @@ const Forums = () => {
             </div>
         );
     }
-
     return (
-        <div className="container mx-auto p-4 bg-gray-800 text-white">
-            <div className="space-y-4">
+        <div className="container mx-auto px-2 py-3 bg-gray-900 text-white rounded-xl">
+            <div className="space-y-3">
                 {data.map(forum => (
-                    <div key={forum.name} className="border-b border-gray-700 py-4">
+                    <div key={forum.name} className="bg-gray-800 hover:bg-gray-700 transition duration-300 ease-in-out rounded-lg shadow-md overflow-hidden">
                         <Link legacyBehavior href={`/forums/${forum.name}`}>
-                            <a className="text-blue-400 hover:text-blue-500 font-semibold text-xl">{forum.name}</a>
+                            <a className="flex items-center space-x-3 p-4 hover:bg-gray-700 transition duration-300 ease-in-out">
+                                <div className="rounded-full bg-blue-500 h-8 w-8 flex items-center justify-center">
+                                    <i className="fas fa-comments text-white"></i>
+                                </div>
+                                <div className="flex-grow">
+                                    <h3 className="text-lg font-semibold text-blue-400">{forum.name}</h3>
+                                    <p className="text-sm text-gray-300">{forum.desc}</p>
+                                </div>
+                            </a>
                         </Link>
-                        <p className="text-gray-400 mt-2">{forum.desc}</p>
                     </div>
                 ))}
             </div>
         </div>
     );
+    
+    
+    
+    
+    
 };
 
 export default Forums;

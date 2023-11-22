@@ -3,6 +3,26 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import {Footer, TopBar} from '../../components/consistency.js';
+
+// Define a function to handle the API request
+const handleAddPost = async (chosenForum, setPostData, setIsLoading) => {
+    try {
+        setIsLoading(true)
+      // Perform your API request here
+      const response = await axios.get(`/api/ai/createPost?chosenForum=${chosenForum}`);
+
+      const newPost = response.data; // Modify this based on your API response structure
+      setPostData((prevPosts) => [newPost, ...prevPosts]);
+      window.scrollTo(0, 0); // Scrolls to the top of the page
+    } catch (error) {
+      // Handle any network or API request error here
+      console.error('Error creating a new post:', error);
+    }finally{
+        setIsLoading(false)
+    }
+  };
+  
 
 async function fetchForumData(slug) {
     try {
@@ -29,6 +49,7 @@ const ForumPage = () => {
     const { slug } = router.query;
     const [forumData, setForumData] = useState(null);
     const [postData, setPostData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (slug) {
@@ -43,44 +64,54 @@ const ForumPage = () => {
                </div>;
     }
     return (
-        <div className="bg-gray-900 text-white">
-        {/* Top Bar */}
-        <div className="fixed top-0 left-0 w-full bg-gray-800 px-3 py-2 mb-6 z-50">
-        <div className="container mx-auto flex justify-between items-center">
-            <div className="flex items-center">
-                <i className="fas fa-users text-md mr-2 text-green-600"></i>
-                <Link href={`/`} legacybehaviour><p className="text-md">
-                    <span className="text-green-600 font-medium">Go back home</span>
-                </p></Link>
-            </div>
-            <div className="flex items-center">
-                <i className="fas fa-user text-md mr-2 text-blue-600"></i>
-                <p className="text-sm">
-                    <span className="text-gray-400 font-light">{forumData.desc}</span>
-                </p>
-            </div>
+<div className="bg-gray-900 text-white flex flex-col min-h-screen">
+    {/* Top Bar */}
+    <TopBar>
+    <Link legacyBehavior href={`/`}>
+                <a className="flex items-center text-blue-500 hover:text-blue-400 transition-colors">
+                    <i className="fas fa-chevron-left text-md mr-2"></i>
+                    <span className="text-sm font-medium">Go back home</span>
+                </a>
+            </Link>
+            <p className="text-xs text-gray-400">{forumData.desc}</p>
+            {/* Add Post Button */}
+        <button
+          onClick={() => handleAddPost(forumData.name, setPostData, setIsLoading)}
+          className="text-white bg-blue-500 hover:bg-blue-600 rounded-md px-3 py-1 text-sm"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Working on that...' : 'Add Post'}
+        </button>
+    </TopBar>
+
+    
+    {/* Main Content */}
+    <div className="container mx-auto pt-16 pb-8 px-4 flex-grow">
+        <div className="bg-gray-800 rounded-lg shadow px-5 py-4 mb-5">
+            <h1 className="text-2xl font-bold text-blue-500 mb-2">{forumData.name}</h1>
+            <p className="text-sm text-gray-400">{forumData.desc}</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {postData.map(post => (
+                <Link legacyBehavior key={post.title} href={`/posts/${post.id}`}>
+                    <a className={`bg-gray-800 hover:bg-gray-700 rounded-md shadow-md hover:shadow-lg transition duration-200 ease-in-out p-3 post-fade-in`}>
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-md font-semibold text-gray-300 truncate">{post.title}</h2>
+                            <span className="text-xs text-gray-400 ml-2">{post.commentCount} <i className="fas fa-comment-alt"></i></span>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">{post.user}</div>
+                        <p className="text-xs text-gray-300 mt-1 line-clamp-2">{post.content}</p>
+                    </a>
+                </Link>
+            ))}
         </div>
     </div>
+    <Footer />
+</div>
+
+
+
     
-            {/* Main Content */}
-            <div className="container mx-auto pt-16 p-4">
-                <div className="bg-gray-800 p-5 pb-2 rounded-lg shadow-md">
-                    <h1 className="text-3xl font-extrabold text-blue-500 mb-3">{forumData.name}</h1>
-                    <p className="text-md text-gray-400 mb-4">{forumData.desc}</p>
-                </div>
-                <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {postData.map(post => (
-                        <div key={post.title} className="bg-gray-800 p-4 rounded-lg hover:bg-slate-900 transition-colors">
-                            <Link legacyBehaviour href={`/posts/${post.id}`}>
-                                <h2 className="text-xl font-semibold text-gray-400 hover:text-green-300 cursor-pointer mb-2">{post.title}</h2>
-                            </Link>
-                            <h3 className="text-sm text-gray-500 mb-2">{post.user}</h3>
-                            <p className="text-sm text-gray-300 line-clamp-3">{post.content}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
     )};
     
     

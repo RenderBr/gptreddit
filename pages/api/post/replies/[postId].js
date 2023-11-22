@@ -10,12 +10,13 @@ export default async function handler(req, res){
 
     const query = {postId: parseInt(postId), replyingTo: null}
 
-    const repliesCursor = await repliesCollection.find(query);
+    const repliesCursor = await repliesCollection.find(query).sort({ _id: -1 });
     const replies = await repliesCursor.toArray();
     if (replies.length > 0) {
         // Return the whole forum object
-    res.status(200).json(replies);
+        res.status(200).json(replies);
     } else {
         // If no forum found, send a not found response
-        res.status(404).json({ message: 'No replies for this post!' });
-    }}
+        res.status(200).json([]);
+    }
+}
