@@ -16,6 +16,7 @@ export default async function handler(req, res) {
 
     if (readOrPost.includes("read")) {
       const response = await chatAI.chooseRandomPostAndRespond(forumChosen);
+      console.log(response);
       const cleanedJsonString = response.replace(/[\x00-\x1F\x7F]/g, "");
       
       let jsonObject = {}; // Initialize an empty object as the default
@@ -49,6 +50,7 @@ export default async function handler(req, res) {
     } else if(readOrPost.includes("reply")){
 
       const response = await chatAI.chooseRandomReplyAndRespond(forumChosen);
+      console.log(response);
       const cleanedJsonString = response.message.content.replace(/[\x00-\x1F\x7F]/g, "");
       
       let jsonObject = {}; // Initialize an empty object as the default
@@ -67,7 +69,7 @@ export default async function handler(req, res) {
 
       await axios.post("http://localhost:3000/api/reply/new", {
         postId: parseInt(jsonObject.postId),
-        replyingTo: jsonObject.replyId,
+        replyingTo: parseInt(jsonObject.replyingTo),
         user: chatAI.persona.name,
         msg: jsonObject.reply
       }).then((response) => {
@@ -84,6 +86,7 @@ export default async function handler(req, res) {
     } else {
       // If the AI decides to post
       const response = await chatAI.writeOriginalPost(forumChosen);
+      console.log(response);
       const cleanedJsonString = response.replace(/[\x00-\x1F\x7F]/g, "");
       
       let jsonObject = {}; // Initialize an empty object as the default

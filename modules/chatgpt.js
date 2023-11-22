@@ -8,6 +8,7 @@ class ChatAI {
     });
     this.messages = []; // Array to store messages
     this.persona;
+    this.chosenForum;
   }
 
   async promptAI(prompt) {
@@ -41,27 +42,27 @@ class ChatAI {
     return this.persona;
   }
 
-async readOrPost(forum) {
+  async readOrPost(forum) {
     const randomNumber = Math.random();
 
     let aiResponse;
 
     if (randomNumber < 0.5) {
-        aiResponse = await this.promptAI(
-            `Based on the personality traits: ${JSON.stringify(this.persona)}, and considering your exploration of the '${forum.name}' forum, which focuses on '${forum.desc}', how would you like to engage? Would it align more with your personality to create a new post, read through existing discussions, or directly respond to an existing post or reply? Please indicate your preference by responding with 'post', 'read', or 'reply' only.`
-        );
+      aiResponse = await this.promptAI(
+        `Based on the personality traits: ${JSON.stringify(this.persona)}, and considering your exploration of the '${forum.name}' forum, which focuses on '${forum.desc}', how would you like to engage? Would it align more with your personality to create a new post, read through existing discussions, or directly respond to an existing post or reply? Please indicate your preference by responding with 'post', 'read', or 'reply' only.`
+      );
     } else {
-        aiResponse = await this.promptAI(
-            `Based on the personality traits: ${JSON.stringify(this.persona)}, and as you explore the '${forum.name}' forum which focuses on '${forum.desc}', consider stepping out of your comfort zone. 
+      aiResponse = await this.promptAI(
+        `Based on the personality traits: ${JSON.stringify(this.persona)}, and as you explore the '${forum.name}' forum which focuses on '${forum.desc}', consider stepping out of your comfort zone. 
 
             While it's natural to lean towards activities that align with your personality, this is an opportunity to diverge from the usual. Perhaps, if you're typically more of a reader, you might try creating a new post. Or if you're usually active in discussions, consider taking a step back to observe and read. 
 
             How would you like to engage in a way that's different from your usual approach? Please indicate your preference by responding with 'post', 'read', or 'reply', choosing an option that represents a new experience for you.`
-        );
+      );
     }
 
     return aiResponse.message.content;
-}
+  }
 
   async chooseForum(character) {
     const persona = this.getPersona(character);
@@ -73,59 +74,82 @@ async readOrPost(forum) {
 
     const aiResponse = await this.promptAI(`Given these characteristics:
         ${JSON.stringify(
-          persona
-        )}, pick a forum that would interest you, but really it's random chance, just choose the name of the forum all lowercase, no spaces, don't say anything else:
+      persona
+    )}, pick a forum that would interest you, but really it's random chance, just choose the name of the forum all lowercase, no spaces, don't say anything else:
         ${JSON.stringify(forumNames)}
         `);
+        chosenForum = aiResponse.message.content;
     return aiResponse.message.content;
   }
 
-  async fetchForumPosts(forumChosen){
-      const forumPostsResponse = await axios.get(
-        `http://localhost:3000/api/forum/posts/${forumChosen}`
-      );
-      const forumPosts = forumPostsResponse.data;
-      return forumPosts;
+  async fetchForumPosts(forumChosen) {
+    const forumPostsResponse = await axios.get(
+      `http://localhost:3000/api/forum/posts/${forumChosen}`
+    );
+    const forumPosts = forumPostsResponse.data;
+    return forumPosts;
   }
 
   async chooseRandomReplyAndRespond(forumChosen) {
     try {
       const forumPosts = await this.fetchForumPosts(forumChosen);
       if (!forumPosts || forumPosts.length === 0) return "No posts found in the forum to comment on.";
-  
+
       let attempts = 0;
       const maxAttempts = 5; // A limit to prevent infinite loops
-  
+
       while (attempts < maxAttempts) {
         const randomIndex = Math.floor(Math.random() * forumPosts.length);
         const randomPost = forumPosts[randomIndex];
-  
+
         if (randomPost.user === this.persona.name) {
           attempts++;
           continue; // Skip if the post is by the AI persona
         }
-  
+
         let replies = await this.fetchRepliesForPost(randomPost.id);
         replies = replies.filter(reply => reply.user !== this.persona.name);
-  
+
         if (replies.length > 0) {
           const randomReply = replies[Math.floor(Math.random() * replies.length)];
 
-          if(randomPost.user != this.persona.name){
-          return await this.promptAI(`Based on your assigned persona: ${this.persona}, you are reading the post:
-          
-          ${randomPost.title} with the contents being: ${randomPost.desc}. You see a reply that catches your interest: 
-          ${randomReply.msg}, this is posted by ${randomReply.user}. If you were this user, what would you respond with? 
-          Encode your reply in JSON along with the following attributes: 'postId' which has a value of ${randomPost.id}, 'replyingTo' which has a value of ${randomReply.replyId}, and 'reply' which contains the contents of your response.
-          Please do not include any linebreaks!
-          `);
-          }else{
-                return await this.promptAI(
-                    `Imagine you are a person with the following personality traits: ${JSON.stringify(
-                      this.persona
-                    )}. While browsing a post that you created on the '${forumChosen}' forum,
-                    You are reading a reply someone left on your post: ${randomPost.title}. The replier is named ${randomReply.user} and the content is ${randomReply.msg}, how would you respond to this user? Just type out the response the character would make, encode with JSON and avoid using \\n outside of the 'reply', we only need two JSON attributes, one called 'reply' and 'postId', with this as the value: ${randomPost.id}`
-                  );
+          if (randomPost.user == this.persona.name) {
+            const jsonInstructions = `Encode your reply in JSON format, with no line breaks within the 'reply' field. Use '<br>' for necessary line breaks. 
+            The JSON should contain three attributes: 'reply', which is your resposne, 'postId', which should be set to: ${randomPost.id}, and 'replyingTo' which should be set to: ${randomReply.replyId}. 
+            Remember, the essence is to make your reply authentic to your character, while keeping it concise and adhering to the JSON format guidelines.`;
+
+            const aiResponse2 = await this.promptAI(`
+            Imagine you are a ${this.persona.age}-year-old ${this.persona.gender} named ${this.persona.name}. 
+            Your personality is defined by these traits: (${this.persona.personality}). 
+            Your name, age, gender and each trait should distinctly influence how you express yourself in this response. 
+            If you're 'empathetic', show understanding; if 'sarcastic', use dry humor; if 'inquisitive', ask insightful questions. 
+            Previously, on the '${forumChosen}' forum you made a post titled "${randomPost.title}", 
+            with the content: "${randomPost.desc}". 
+            Somebody named ${randomReply.user} left a reply on your post: ${randomReply.msg}.
+            You have decided to write a response to this user.
+            Your response should reflect your personality, but also emulate a typical Reddit user's writing style. Since it's just a comment, keep it brief, unless your personality traits indicate otherwise.
+            Remember, the key is to let your personality traits shine through in your writing style and the content of your comment. Just be authentically you.
+             ${jsonInstructions}`);
+            return aiResponse2;
+
+          } else {
+            const jsonInstructions = `Encode your reply in JSON format, with no line breaks within the 'reply' field. Use '<br>' for necessary line breaks. 
+            The JSON should contain three attributes: 'reply', which is your resposne, 'postId', which should be set to: ${randomPost.id}, and 'replyingTo' which should be set to: ${randomReply.replyId}. 
+            Remember, the essence is to make your reply authentic to your character, while keeping it concise and adhering to the JSON format guidelines.`;
+
+            const aiResponse2 = await this.promptAI(`
+            Imagine you are a ${this.persona.age}-year-old ${this.persona.gender} named ${this.persona.name}. 
+            Your personality is defined by these traits: (${this.persona.personality}). 
+            Your name, age, gender and each trait should distinctly influence how you express yourself in this response. 
+            If you're 'empathetic', show understanding; if 'sarcastic', use dry humor; if 'inquisitive', ask insightful questions. 
+            You are browsing a forum post in '${forumChosen}'. The post is titled "${randomPost.title}", 
+            with the content: "${randomPost.desc}, it was written by ${randomPost.user}". 
+            While reading the comments, you see a comment by ${randomReply.user} that says: "${randomReply.msg}".
+            You have decided to write a response to this user, keep in mind their reply is likely in response to the original poster ${randomPost.user}, and you are ${this.persona.name}.
+            Your response should reflect your personality, but also emulate a typical Reddit user's writing style. Since it's just a comment, keep it brief, unless your personality traits indicate otherwise.
+            Remember, the key is to let your personality traits shine through in your writing style and the content of your comment. Just be authentically you.
+             ${jsonInstructions}`);
+             return aiResponse2;
           }
 
 
@@ -133,19 +157,19 @@ async readOrPost(forum) {
           attempts++;
         }
       }
-  
+
       return "No suitable replies found to respond to after several attempts.";
     } catch (error) {
       console.error("Error in chooseRandomReplyAndRespond:", error);
       throw error;
     }
   }
-  
-  async fetchRepliesForPost(postId){
+
+  async fetchRepliesForPost(postId) {
     const response = await axios.get(`http://localhost:3000/api/post/replies/${postId}`);
     const repliesData = response.data;
     return repliesData;
-}
+  }
 
 
   async chooseRandomPostAndRespond(forumChosen) {
@@ -154,40 +178,49 @@ async readOrPost(forum) {
         `http://localhost:3000/api/forum/posts/${forumChosen}`
       );
       const forumPosts = forumPostsResponse.data;
-  
+
       // Check if there are posts in the array
       if (forumPosts.length === 0) {
         return "No posts found in the forum to comment on.";
       }
-  
+
       // Choose a random post from the forumPosts array
       const randomPost =
         forumPosts[Math.floor(Math.random() * forumPosts.length)];
-  
+
       if (randomPost.user === this.persona.name) {
         // If the random post is by the AI persona, choose another random post
         return await this.chooseRandomPostAndRespond(forumChosen);
       }
-  
+
       const response = await axios.get(
         `http://localhost:3000/api/reply/hasAlreadyReplied?postId=${randomPost.id}&userId=${this.persona.name}`
       );
-  
+
       if (response.status === 200) {
         const data = response.data;
         if (data.hasReplied) {
           // User has already replied to this post, skip it
-          return await this.chooseRandomPostAndRespond(forumChosen);        
+          return await this.chooseRandomPostAndRespond(forumChosen);
         } else {
-          const aiResponse2 = await this.promptAI(
-            `Imagine you are a person with the following personality traits: ${JSON.stringify(
-              this.persona
-            )}. While browsing the '${forumChosen}' forum, you stumble across a post titled "${
-              randomPost.title
-            }", with the contents being: "${
-              randomPost.desc
-            }". As this person, what kind of comment would you leave on this post? Just type out the response the character would make, encode with JSON and avoid using \\n outside of the 'reply', we only need two JSON attributes, one called 'reply' and 'postId', with this as the value: ${randomPost.id}`
-          );
+          this.clearMessages();
+          const jsonInstructions = `Encode your reply in JSON format, with no line breaks within the 'reply' field. Use '<br>' for necessary line breaks. 
+          The JSON should contain two attributes: 'reply', which is your comment, and 'postId', which should be set to: ${randomPost.id}. 
+          Remember, the essence is to make your reply authentic to your character, while keeping it concise and adhering to the JSON format guidelines.`;
+
+          const aiResponse2 = await this.promptAI(`
+    Imagine you are a ${this.persona.age}-year-old ${this.persona.gender} named ${this.persona.name}. 
+    Your personality is defined by these traits: (${this.persona.personality}). 
+    Your name, age, gender and each trait should distinctly influence how you express yourself in this comment. 
+    If you're 'empathetic', show understanding; if 'sarcastic', use dry humor; if 'inquisitive', ask insightful questions. 
+    You are browsing the '${forumChosen}' forum and come across a post titled "${randomPost.title}", 
+    with the content: "${randomPost.desc}". 
+    You have decided to write a comment on this post.
+    Your comment should reflect your personality, but also emulate a typical Reddit user's writing style. Since it's just a comment, keep it brief, unless your personality traits indicate otherwise.
+    Remember, the key is to let your personality traits shine through in your writing style and the content of your comment. Just be authentically you.
+     ${jsonInstructions}`
+    );
+
           return aiResponse2.message.content;
         }
       } else {
@@ -199,18 +232,31 @@ async readOrPost(forum) {
       throw error;
     }
   }
-  
-  async writeOriginalPost(forumChosen){
-    const forumPostTitles = (await axios.get(`http://localhost:3000/api/forum/posts/${forumChosen}`)).data.map(post => post.title).join(', ');
 
-    const aiResponse2 = await this.promptAI(
-        `Imagine you have a unique personality, a blend of traits like ${JSON.stringify(this.persona)}. Your task is to craft an original and captivating post for the '${forumChosen}' forum. Think of this post as your chance to share your thoughts and insights on any topic that interests you. Be creative, and let your personality shine through in your writing.
-      
-      To make your post stand out, avoid directly referencing the current discussion topics in the forum, here are the current topics: ${forumPostTitles}. Instead, focus on expressing your own unique perspective or sharing a personal story. Write your response as if you were engaging in a genuine conversation. Don't worry about the length; what matters most is that your post feels complete and leaves a lasting impression.
-      
-      When you're ready, format your response as a JSON object with two attributes: 'title' and 'desc.' The 'desc' (description) should be a well-rounded and thoughtful text that reflects your personality and provides value to the forum. Remember, it's not about the quantity of words but the quality of your contribution. Instead of using line breaks, feel free to use <br> for formatting.`
-      );
-      
+  async writeOriginalPost(forumChosen) {
+    this.clearMessages();
+    const forumPostTitles = (await axios.get(`http://localhost:3000/api/forum/posts/${forumChosen}`)).data.map(post => post.title).join(', ');
+    console.log(`
+    this.persona.age: ${this.persona.age}, \n
+    this.persona.gender: ${this.persona.gender}, \n
+    this.persona.name: ${this.persona.name}, \n
+    this.persona.personality: ${this.persona.personality}, \n
+    forumChosen: ${forumChosen}, \n
+    forumPostTitles: ${forumPostTitles}
+    `);
+
+    const jsonInstructions = `Enocde your post in JSON with 'title' and 'desc'. Keep it neat – no line breaks, use <br> instead.`;
+    const aiResponse2 = await this.promptAI(`
+    Imagine you are a ${this.persona.age}-year-old ${this.persona.gender} named ${this.persona.name}. 
+    Your personality is defined by these traits: (${this.persona.personality}). 
+    Your name, age, gender and each trait should distinctly influence how you express yourself in the post. 
+    For instance, if you are 'creative', include original ideas; if 'witty', add humor; if 'analytical', provide in-depth analysis. 
+    You are about to make a post in '${forumChosen}'. 
+    Please avoid these overused topics: (${forumPostTitles}), to ensure your post is unique. 
+    Your post should reflect your personality, but also emulate a typical Reddit user's writing style. Whether its on the longer side or the shorter side should be determined by your personality. Ideally, we want to keep the posts under 150 words, but the average post should be 20-60. 
+    Remember, the key is to let your personality traits shine through in your writing style and the content of your post. Just be authentically you. ${jsonInstructions}`);
+    
+
     return aiResponse2.message.content;
   }
 

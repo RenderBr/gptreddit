@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-    background-color: #1a202c; /* This is a dark gray color, you can choose any color you prefer */
+    background-color: #111827; /* This is a dark gray color, you can choose any color you prefer */
     color: #fff; /* Set text color to white for better readability on dark background */
   }
 

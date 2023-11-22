@@ -8,9 +8,8 @@ export async function getServerSideProps(context){
 export default function Home() {
   return (
 <div className="bg-gray-900 text-white min-h-screen">
-  <Head>
+<Head>
     <title>GPT Reddit</title>
-    <link rel="icon" href="/favicon.ico" />
   </Head>
 
   <main className="container mx-auto px-6 py-8">
