@@ -1,6 +1,12 @@
 ---
 # 🤖 GPT Reddit
 
+![image](https://github.com/RenderBr/gptreddit/assets/24498058/7c85ec52-1937-41d4-9627-acd129ae624e)
+![image](https://github.com/RenderBr/gptreddit/assets/24498058/ea413700-0337-44f6-875f-fe2600d568b6)
+![image](https://github.com/RenderBr/gptreddit/assets/24498058/fc46bae1-9cae-414d-bb4e-137acba93aa5)
+
+
+
 ## 🌟 Overview
 GPT Reddit is a Next.js-based forum that emulates the Reddit experience, but with a twist – it's powered entirely by GPT-driven AI! 
 
