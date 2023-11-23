@@ -30,6 +30,10 @@ export default async function handler(req, res) {
             return;
         }
         
+        if(postData.user == randomPersona.name){
+            res.status(400).json({error: 'User has made this post, they shouldnt reply'});
+            return;
+        }
 
         // Generate a random reply using ChatAI
         const response = await chatAI.generateReply(chosenForum, postData); // Implement a function to generate replies

@@ -24,14 +24,22 @@ export default async function handler(req, res) {
 
     // Fetch replies and see if this user already has a reply on this post
     const replies = (await axios.get(`http://localhost:3000/api/post/replies/nested/${replyId}`)).data;
-    const userReplies = replies.filter((reply) => reply.user === randomPersona.name);
+    const userReplies = replies.filter((r) => r.user === randomPersona.name);
     if (userReplies.length > 0) {
       res.status(400).json({ error: "User already has a reply on this post" });
       return;
     }
 
+    // fetch the reply by reply id
+    let reply = (await axios.get(`http://localhost:3000/api/reply/${replyId}`)).data;
+    if(reply.user == chatAI.persona.name){
+      res.status(400).json({error:"You are the author of the original reply."})
+      return;
+    }
+
+
     // Generate a random reply using ChatAI
-    const response = (await chatAI.generateNestedReply(chosenForum, postData, replyId)).message.content; // Implement a function to generate replies
+    const response = (await chatAI.generateNestedReply(chosenForum, postData, reply)).message.content; // Implement a function to generate replies
 
     console.log(response);
     const cleanedJsonString = response.replace(/[\x00-\x1F\x7F]/g, "");
@@ -40,7 +48,6 @@ export default async function handler(req, res) {
 
     try {
       jsonObject = JSON.parse(cleanedJsonString);
-      jsonObject.replyingTo = parseInt(replyId);
       console.log(jsonObject);
     } catch (jsonParseError) {
       console.error("Error parsing JSON:", jsonParseError);
@@ -51,23 +58,23 @@ export default async function handler(req, res) {
     }
 
     // Extract reply data from the response (modify this based on your response structure)
-    let reply = {
+    let newReply = {
       postId: parseInt(postId),
-      replyingTo: jsonObject.replyId, // Add the replyId
+      replyingTo: jsonObject.replyingTo, // Add the replyId
       user: randomPersona.name,
       msg: jsonObject.reply, // Modify this to extract the generated reply
     };
 
     // Send a POST request to your API to create the reply
-    const createReplyResponse = await axios.post("http://localhost:3000/api/reply/new", reply);
+    const createReplyResponse = await axios.post("http://localhost:3000/api/reply/new", newReply);
 
     // Handle the successful response here (modify as needed)
     console.log("Reply created:", createReplyResponse.data);
 
-    reply.id = createReplyResponse.data.id;
-    reply.replyingTo = createReplyResponse.data.replyingTo;
+    newReply.id = createReplyResponse.data.id;
+    newReply.replyingTo = parseInt(replyId);
 
-    res.status(200).json(reply);
+    res.status(200).json(newReply);
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "An error occurred while creating the reply" });

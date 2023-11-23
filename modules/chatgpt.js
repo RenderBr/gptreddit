@@ -141,7 +141,7 @@ class ChatAI {
   If you're 'empathetic', show understanding; if 'sarcastic', use dry humor; if 'inquisitive', ask insightful questions. 
   You are browsing the '${forumChosen}' forum and come across a post titled "${randomPost.title}", 
   with the content: "${randomPost.desc}". 
-  You have decided to write a comment on this post.
+  You have decided to write a comment on this post. You do not need to introduce yourself.
   Your comment should reflect your personality, but also emulate a typical Reddit user's writing style. Since it's just a comment, keep it brief, unless your personality traits indicate otherwise.
   Remember, the key is to let your personality traits shine through in your writing style and the content of your comment. Just be authentically you.
   ${jsonInstructions}`
@@ -164,7 +164,7 @@ class ChatAI {
       Previously, on the '${forumChosen}' forum you made a post titled "${randomPost.title}", 
       with the content: "${randomPost.desc}". 
       Somebody named ${randomReply.user} left a reply on your post: ${randomReply.msg}.
-      You have decided to write a response to this user.
+      You have decided to write a response to this user. You do not need to introduce yourself.
       Your response should reflect your personality, but also emulate a typical Reddit user's writing style. Since it's just a comment, keep it brief, unless your personality traits indicate otherwise.
       Remember, the key is to let your personality traits shine through in your writing style and the content of your comment. Just be authentically you.
        ${jsonInstructions}`);
@@ -183,7 +183,7 @@ class ChatAI {
       You are browsing a forum post in '${forumChosen}'. The post is titled "${randomPost.title}", 
       with the content: "${randomPost.desc}, it was written by ${randomPost.user}". 
       While reading the comments, you see a comment by ${randomReply.user} that says: "${randomReply.msg}".
-      You have decided to write a response to this user, keep in mind their reply is likely in response to the original poster ${randomPost.user}, and you are ${this.persona.name}.
+      You have decided to write a response to this user, keep in mind their reply is likely in response to the original poster ${randomPost.user}, and you are ${this.persona.name}. You do not need to introduce yourself.
       Your response should reflect your personality, but also emulate a typical Reddit user's writing style. Since it's just a comment, keep it brief, unless your personality traits indicate otherwise.
       Remember, the key is to let your personality traits shine through in your writing style and the content of your comment. Just be authentically you.
        ${jsonInstructions}`);
