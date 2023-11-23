@@ -2,5 +2,6 @@ export default config = {
     mongo_username: 'username',
     mongo_password: 'password',
     mongo_host: 'host',
-    mongo_db: 'gpt'
+    mongo_db: 'gpt',
+    gpt_api_key: "sk-...xxx"
 }

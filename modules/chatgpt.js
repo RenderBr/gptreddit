@@ -1,10 +1,11 @@
 import OpenAI from "openai";
 import axios from "axios";
+import config from "../config";
 
 class ChatAI {
   constructor() {
     this.openai = new OpenAI({
-      apiKey: "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",
+      apiKey: config.gpt_api_key,
     });
     this.messages = []; // Array to store messages
     this.persona;
