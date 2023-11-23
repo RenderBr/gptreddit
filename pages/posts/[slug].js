@@ -136,13 +136,13 @@ const ForumPage = () => {
 
     <p className="text-md">
       Posted by:{" "}
-      <Link href={`/users/${postData.user}`}><span className="text-blue-600 font-medium">{postData.user}</span></Link>
+      <Link href={`/users/${postData.user}`}><span className="text-yellow-600 font-medium">{postData.user}</span></Link>
     </p>
     <button
       onClick={() =>
         addReplyToPost(postData.id, setReplyData, setIsLoading)
       }
-      className="text-white bg-blue-500 hover:bg-blue-600 rounded-md px-3 py-1 text-sm"
+      className="text-white bg-blue-500 hover:bg-blue-600 rounded-md px-3 py-1 text-sm transition duration-300 ease-in-out rounded-lg shadow-md overflow-hidden hover:scale-105"
       disabled={isLoading}
     >
       {isLoading ? "..." : "Generate Reply"}

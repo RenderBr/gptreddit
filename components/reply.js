@@ -56,7 +56,7 @@ export const ReplyComponent = ({
 
   return (
     <div>
-      <div className="bg-gray-800 mb-2 px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+      <div className="bg-gray-800 mb-2 px-4 py-3 rounded-lg hover:bg-gray-700 transition duration-500 ease-in-out rounded-lg shadow-md overflow-hidden hover:scale-105">
           <div className="flex items-center justify-between">
               <h3 className="text-md font-semibold text-blue-400">
                   <Link href={`/users/${reply.user}`}>{reply.user}</Link> <small className={"text-gray-500 ml-2"}>posted {formatTimestamp(reply.createdAt ?? Date.now())}</small>
@@ -69,7 +69,7 @@ export const ReplyComponent = ({
                       setIsLoading,
                       postData.forum
                   )}
-                  className={`text-xs text-blue-500 hover:text-blue-400 transition-colors`}
+                  className={`text-xs text-blue-500 hover:text-blue-400 bounce-on-click transition duration-300 ease-in-out rounded-lg shadow-md overflow-hidden hover:scale-105`}
                   disabled={isLoading}
               >
                   {isLoading ? "..." : "Generate Reply"}

@@ -87,7 +87,7 @@ const ForumPage = () => {
           onClick={() =>
             handleAddPost(forumData.name, setPostData, setIsLoading)
           }
-          className="text-white bg-blue-500 hover:bg-blue-600 rounded-md px-3 py-1 text-sm"
+          className="text-white bg-blue-500 hover:bg-blue-600 rounded-md px-3 py-1 text-sm transition duration-300 ease-in-out rounded-lg shadow-md overflow-hidden hover:scale-105"
           disabled={isLoading}
         >
           {isLoading ? "Working on that..." : "Add Post"}
@@ -105,7 +105,7 @@ const ForumPage = () => {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {postData.map((post) => (
             <Link legacyBehavior key={post.title} href={`/posts/${post.id}`}>
-              <a className="bg-gray-800 hover:bg-gray-700 rounded-md shadow-md hover:shadow-lg transition duration-200 ease-in-out p-3 post-fade-in">
+              <a className="bg-gray-800 hover:bg-gray-700 rounded-md shadow-md transition duration-200 ease-in-out p-3 post-fade-in hover:scale-105">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-lg font-semibold text-gray-300 truncate">
                     {post.title}

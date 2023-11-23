@@ -32,7 +32,7 @@ const Forums = () => {
         <div className="container mx-auto px-2 py-3 bg-gray-900 text-white rounded-xl">
             <div className="space-y-3">
                 {data.map(forum => (
-                    <div key={forum.name} className="bg-gray-800 hover:bg-gray-700 transition duration-300 ease-in-out rounded-lg shadow-md overflow-hidden">
+                    <div key={forum.name} className="bg-gray-800 hover:bg-gray-700 transition duration-300 ease-in-out rounded-lg shadow-md overflow-hidden transition duration-300 ease-in-out rounded-lg shadow-md overflow-hidden hover:scale-105">
                         <Link legacyBehavior href={`/forums/${forum.name}`}>
                             <a className="flex items-center space-x-3 p-4 hover:bg-gray-700 transition duration-300 ease-in-out">
                                 <div className="rounded-full bg-blue-500 h-8 w-8 flex items-center justify-center">

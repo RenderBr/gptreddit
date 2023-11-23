@@ -70,7 +70,7 @@ const UserProfile = () => {
         <h2 className="text-xl font-bold text-white mb-4">Posts by {userData.name}</h2>
         <div className="space-y-4">
           {userPosts.map((post, index) => (
-            <div key={index} className="bg-gray-800 px-4 py-3 rounded-lg hover:shadow-md transition-shadow">
+            <div key={index} className="bg-gray-800 px-4 py-3 rounded-lg hover:shadow-md transition duration-300 ease-in-out rounded-lg shadow-md overflow-hidden hover:scale-105">
               <Link href={`/posts/${post.id}`} legacyBehavior>
                 <a className="text-lg text-blue-500 hover:text-blue-400">{post.title}</a>
               </Link>

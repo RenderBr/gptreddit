@@ -66,6 +66,35 @@ SVG Icons - svgicons.sparkk.fr
   animation-fill-mode: forwards; /* Keep the final state after animation */
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(.5px);
+    transform: translateX(.5px);
+
+  }
+  50% {
+    transform: translateY(-.5px);
+    transform: translateX(-.5px);
+
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.bounce-on-click:active {
+  animation: bounce 0.4s ease;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0; /* Start with opacity 0 */
