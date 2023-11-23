@@ -1,8 +1,6 @@
-import clientPromise from '../../modules/mongo.js';
+import db from '../../modules/mongo.js';
 
 export default async function handler(req, res){
-    const client = await clientPromise;
-    const db = client.db("gpt")
     const forums = db.collection("forums")
 
     const count = await forums.estimatedDocumentCount();

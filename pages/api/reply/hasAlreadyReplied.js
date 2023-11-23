@@ -1,5 +1,4 @@
-// Import your MongoDB client and any necessary dependencies
-import clientPromise from '../../../modules/mongo.js';
+import db from '../../../modules/mongo.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -14,8 +13,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing postId or userId' });
     }
 
-    const client = await clientPromise;
-    const db = client.db('gpt');
     const replies = db.collection('replies');
 
     const query = {

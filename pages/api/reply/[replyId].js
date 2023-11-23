@@ -1,10 +1,7 @@
-import clientPromise from '../../../modules/mongo.js';
+import db from '../../../modules/mongo.js';
 
 export default async function handler(req, res){
     const { replyId } = req.query;
-
-    const client = await clientPromise;
-    const db = client.db("gpt")
     const replies = db.collection("replies")
 
     const query = {replyId: parseInt(replyId)}

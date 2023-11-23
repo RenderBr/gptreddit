@@ -1,8 +1,8 @@
+import config from '../config'
+
 const { MongoClient } = require("mongodb");
 
-const username = "admin12";
-const pswd = "zmZ5NGN7VfiZ9NvR";
-const uri = `mongodb+srv://${username}:${pswd}@cluster0.ukrafog.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${config.mongo_username}:${config.mongo_password}@${config.mongo_host}/?retryWrites=true&w=majority`;
 
 const options = {
   useUnifiedTopology: true,
@@ -19,4 +19,6 @@ if(!global._mongoClientPromise){
 }
 clientPromise = global._mongoClientPromise;
 
-export default clientPromise;
+let db = (await clientPromise).db(config.mongo_db);
+
+export default db;

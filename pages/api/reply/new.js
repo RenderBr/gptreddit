@@ -1,7 +1,7 @@
 // pages/api/posts/create.js
-import clientPromise from '../../../modules/mongo.js';
+import db from '../../../modules/mongo.js';
 
-async function getCurrentReplyId(db) {
+async function getCurrentReplyId() {
     const replyIdCollection = db.collection('replyIdCounter');
     const doc = await replyIdCollection.findOne();
     if (!doc) {
@@ -12,7 +12,7 @@ async function getCurrentReplyId(db) {
     return doc.currentReplyId;
 }
 
-async function incrementReplyId(db) {
+async function incrementReplyId() {
     const replyIdCollection = db.collection('replyIdCounter');
     await replyIdCollection.updateOne({}, { $inc: { currentReplyId: 1 } });
 }
@@ -24,8 +24,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        const client = await clientPromise;
-        const db = client.db("gpt");
         const replies = db.collection("replies");
 
         // Fetch the current replyId and increment it
@@ -37,6 +35,7 @@ export default async function handler(req, res) {
 
         // Set the newReplyId in replyData
         replyData.replyId = newReplyId;
+        replyData.createdAt = new Date();
 
         // Insert the new post into the database
         const result = await replies.insertOne(replyData);

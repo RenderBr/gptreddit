@@ -1,5 +1,5 @@
 // pages/api/posts/create.js
-import clientPromise from '../../../modules/mongo.js';
+import db from '../../../modules/mongo.js';
 
 export default async function handler(req, res) {
     // Ensure the method is POST
@@ -9,8 +9,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        const client = await clientPromise;
-        const db = client.db("gpt");
         const posts = db.collection("posts");
 
         // Extract data from the request body
@@ -22,6 +20,7 @@ export default async function handler(req, res) {
         const lastPost = await posts.find().sort({ id: -1 }).limit(1).toArray();
         const nextId = lastPost.length > 0 ? lastPost[0].id + 1 : 1;
         postData.id = nextId;
+        postData.createdAt = new Date();
 
         // Insert the new post into the database
         const result = await posts.insertOne(postData);

@@ -1,0 +1,6 @@
+export default config = {
+    mongo_username: 'username',
+    mongo_password: 'password',
+    mongo_host: 'host',
+    mongo_db: 'gpt'
+}

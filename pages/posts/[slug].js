@@ -5,6 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { Footer, TopBar } from "../../components/consistency.js";
 import { Reply, ReplyComponent } from "../../components/reply.js";
+import { formatDistanceToNow } from 'date-fns';
 
 const addReplyToPost = async (postId, setReplyData, setIsLoading) => {
   try {
@@ -21,6 +22,9 @@ const addReplyToPost = async (postId, setReplyData, setIsLoading) => {
   } finally {
     setIsLoading(false);
   }
+};
+const formatTimestamp = (timestamp) => {
+  return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
 };
 
 const addNestedReply = async (
@@ -104,21 +108,6 @@ const ForumPage = () => {
     }
   }, [slug]); // This useEffect is only for fetching post data and replies
 
-  useEffect(() => {
-    if (replyData && replyData.length) {
-      const newNestedReplies = {};
-      const fetchNestedRepliesPromises = replyData.map((reply) =>
-        fetchNestedReplies(reply.replyId).then((nestedReplyData) => {
-          newNestedReplies[reply.replyId] = nestedReplyData;
-        })
-      );
-
-      Promise.all(fetchNestedRepliesPromises).then(() => {
-        setNestedReplies(newNestedReplies);
-      });
-    }
-  }, [replyData]); // This useEffect is for fetching nested replies
-
   if (!postData) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-900">
@@ -127,43 +116,44 @@ const ForumPage = () => {
     );
   }
   return (
-    <div className="container mx-auto p-8 bg-slate-850 text-white">
-      <TopBar>
-        <div className="flex items-center">
-          {/* Home Link */}
-          <Link legacyBehavior href="/">
-            <a className="text-green-600 font-medium hover:text-green-500 transition-colors">
-              home
-            </a>
-          </Link>
-          {/* Separator */}
-          <span className="text-gray-300 mx-2">\</span>
-          {/* Forum Link */}
-          <Link legacyBehavior href={`/forums/${postData.forum}`}>
-            <a className="text-green-600 font-medium hover:text-green-500 transition-colors">
-              {postData.forum}
-            </a>
-          </Link>
-        </div>
+    <div><TopBar>
+    <div className="flex items-center">
+      {/* Home Link */}
+      <Link legacyBehavior href="/">
+        <a className="text-green-600 font-medium hover:text-green-500 transition-colors">
+          home
+        </a>
+      </Link>
+      {/* Separator */}
+      <span className="text-gray-300 mx-2">\</span>
+      {/* Forum Link */}
+      <Link legacyBehavior href={`/forums/${postData.forum}`}>
+        <a className={"text-green-600 font-medium hover:text-green-500 transition-colors"}>
+          {postData.forum}
+        </a>
+      </Link>
+    </div>
 
-        <p className="text-md">
-          Posted by:{" "}
-          <span className="text-blue-600 font-medium">{postData.user}</span>
-        </p>
-        <button
-          onClick={() =>
-            addReplyToPost(postData.id, setReplyData, setIsLoading)
-          }
-          className="text-white bg-blue-500 hover:bg-blue-600 rounded-md px-3 py-1 text-sm"
-          disabled={isLoading}
-        >
-          {isLoading ? "..." : "Generate Reply"}
-        </button>
-      </TopBar>
+    <p className="text-md">
+      Posted by:{" "}
+      <Link href={`/users/${postData.user}`}><span className="text-blue-600 font-medium">{postData.user}</span></Link>
+    </p>
+    <button
+      onClick={() =>
+        addReplyToPost(postData.id, setReplyData, setIsLoading)
+      }
+      className="text-white bg-blue-500 hover:bg-blue-600 rounded-md px-3 py-1 text-sm"
+      disabled={isLoading}
+    >
+      {isLoading ? "..." : "Generate Reply"}
+    </button>
+  </TopBar>
+    <div className="container mx-auto p-8 bg-slate-850 text-white">
+      
 
       <div className="bg-gray-900 text-white min-h-screen">
         {/* Main Content Card */}
-        <div className="mt-6 mx-auto max-w-4xl bg-gray-800 p-6 rounded-lg shadow-md">
+        <div className="mt-6 mx-auto max-w-4xl bg-gray-800 px-6 pt-6 pb-3 rounded-lg shadow-md">
           {/* Post Title */}
           <h1 className="text-3xl font-bold mb-4 text-white">
             {postData.title}
@@ -173,10 +163,13 @@ const ForumPage = () => {
           <div
             className="text-sm text-gray-300 bg-gray-900 p-4 rounded-lg"
             dangerouslySetInnerHTML={{ __html: postData.desc }}
-          ></div>
+          ></div>          
+          <p className="text-sm mt-3 text-slate-500 text-center">posted {formatTimestamp(postData.createdAt)}</p>
+
         </div>
 
         <div className="my-8 mx-auto max-w-4xl">
+          {/* Discussion Divider */}
           <div className="flex items-center justify-center">
             <hr className="border-gray-700 flex-grow mr-2" />
             <span className="text-sm font-medium text-gray-500">
@@ -193,11 +186,9 @@ const ForumPage = () => {
                 <ReplyComponent
                 key={reply.replyId}
                 reply={reply}
-                nestedReplies={nestedReplies}
                 addNestedReply={addNestedReply}
                 isLoading={isLoading}
                 postData={postData}
-                setNestedReplies={setNestedReplies}
                 setIsLoading={setIsLoading}
                 
                 />
@@ -208,6 +199,8 @@ const ForumPage = () => {
           </div>
         </div>
       </div>
+      
+    </div>
     </div>
   );
 };
