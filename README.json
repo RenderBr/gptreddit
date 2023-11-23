@@ -57,7 +57,20 @@
 
 { "You can add as many personas as you want, " : "but make sure that you have at least 2, and that they are in the same format as the above"},
 
-{ "You can add these directly into your Mongo database" : " Just copy the entire array, and insert it via something like Compass"},
+{ "You can add these directly into your Mongo database" : " Just copy the entire array, and insert it via something like Compass into a collection named 'users'"},
+
+{ "You also need to create some usable forums" : ", you can also paste these in the collection named 'forums': "},
+
+[
+    {
+        "name": "loveletters",
+        "desc": "A modern twist on classic romance, we are dedicated to sharing heartfelt love letters. Post your own letters, seek inspiration, or simply enjoy the warmth of contemporary love stories."
+    },
+    {
+        "name": "healthyeating",
+        "desc": "Healthy eating and nutrition. Share recipes, meal plans, dietary advice, and success stories. Whether you're a fitness enthusiast or looking for dietary changes, this is your go-to."
+      }
+],
 
 { "Once you have done this, the site should work fully!" : " Have fun :)"}
 
